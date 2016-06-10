@@ -1,0 +1,19 @@
+{
+  "name": "axiom-utils",
+  "version": "1.0.0",
+  "description": "common utilities used in axiom platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darshit-shah/axiom-utils.git"
+  },
+  "author": "darshit@byteprophecy.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/darshit-shah/axiom-utils/issues"
+  },
+  "homepage": "https://github.com/darshit-shah/axiom-utils#readme"
+}
