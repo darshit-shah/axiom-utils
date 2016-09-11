@@ -4,7 +4,6 @@
     version: "1.0.0"
   };
 
-
   utils.extend = function() {
     var options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
       i = 1,
@@ -257,35 +256,39 @@
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
-  utils.CSV2JSON = function(csvData, headerMapping) {
+  utils.CSV2JSON = function(csvData, headerMapping, lineSeperator, columnSeperator, ignoreNotMatchingLines, enclosedChar) {
     var retJSONdata = [];
     var headerData = null;
     var all_rows = null;
     var flag = false;
     var retValue = null;
-    var columnSeperator = ",";
-    all_rows = csvData.split("\n");
-    headerData = utils.splitByChar(all_rows[0], columnSeperator, "\"", "\"", true, true);
+    var columnSeperator = columnSeperator || ",";
+    var lineSeperator = lineSeperator || "\n";
+    // all_rows = csvData.split(lineSeperator);
+    all_rows = utils.splitByChar(csvData, lineSeperator, enclosedChar, enclosedChar, false, false);
+    headerData = utils.splitByChar(all_rows[0], columnSeperator, enclosedChar, enclosedChar, true, true);
     all_rows.splice(0, 1);
-    flag = all_rows.every(function(d) {
+    flag = all_rows.every(function(d, rowIndex) {
       if (d.length == 0) {
         return true;
       } else {
         var trmpJSON = {};
-        var tempRow = utils.splitByChar(d, columnSeperator, "\"", "\"", true, true);
-        if (tempRow.length == headerData.length) {
-          headerData.forEach(function(d1, i) {
-            if (headerMapping == undefined || headerMapping[d1] == undefined)
-              trmpJSON[d1] = tempRow[i];
-            else {
-              trmpJSON[headerMapping[d1]] = tempRow[i];
+        var tempRow = utils.splitByChar(d, columnSeperator, enclosedChar, enclosedChar, true, true);
+        headerData.forEach(function(d1, i) {
+          if (headerMapping != undefined && Array.isArray(headerMapping) === true) {
+            if (tempRow[i] != undefined) {
+              trmpJSON[headerMapping[i]] = utils.realEscapeString(tempRow[i]);
+            } else {
+              trmpJSON[headerMapping[i]] = '';
             }
-          });
-          retJSONdata.push(trmpJSON);
-          return true;
-        } else {
-          return false;
-        }
+          } else if (headerMapping != undefined && headerMapping[d1] != undefined) {
+            trmpJSON[headerMapping[d1]] = tempRow[i];
+          } else {
+            trmpJSON[d1] = tempRow[i];
+          }
+        });
+        retJSONdata.push(trmpJSON);
+        return true;
       }
     });
     if (!flag) {
@@ -293,14 +296,37 @@
     } else {
       retValue = retJSONdata;
     };
-
     return retValue;
+  }
+  utils.realEscapeString = function(str) {
+    return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function(char) {
+      switch (char) {
+        case "\0":
+          return "\\0";
+        case "\x08":
+          return "\\b";
+        case "\x09":
+          return "\\t";
+        case "\x1a":
+          return "\\z";
+        case "\n":
+          return "\\n";
+        case "\r":
+          return "\\r";
+        case "\"":
+        case "'":
+        case "\\":
+        case "%":
+          return "\\" + char; // prepends a backslash to backslash, percent,
+          // and double/single quotes
+      }
+    });
   }
   utils.splitByChar = function(line, splitChar, enclosedStartChar, enclosedEndChar, removeEnclosedChar, trim) {
     var arrFields = [];
     var bracketCounter = 0;
     var currLine = '';
-    for (cnt = 0; cnt < line.length; cnt++) {
+    for (var cnt = 0; cnt < line.length; cnt++) {
       if (line.charAt(cnt) == enclosedStartChar) {
         if (enclosedStartChar == enclosedEndChar && bracketCounter > 0) {
           bracketCounter--;
