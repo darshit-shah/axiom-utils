@@ -502,6 +502,71 @@
     });
     return JSON.stringify(newData);
   };
+  
+  utils.getIndexOf = function(array, number, addIfNotAvailable, key, probableIndex) {
+    if (array.length == 0) {
+      if (addIfNotAvailable) {
+        array.push(number);
+        return array.length - 1;
+      } else {
+        return -1;
+      }
+    }
+    var top = 0;
+    var bottom = array.length;
+    var center = Math.floor((top + bottom) / 2);
+    //if(number<array[0])
+    if (((key == undefined) ? (number < array[0]) : (number[key] < array[0][key]))) {
+      if (addIfNotAvailable) {
+        array.splice(0, 0, number);
+        return 0;
+      } else {
+        if (probableIndex)
+          return -1;
+        else
+          return -1;
+      }
+    }
+    //else if(number>array[bottom-1])
+    else if (((key == undefined) ? (number > array[bottom - 1]) : (number[key] > array[bottom - 1][key]))) {
+      if (addIfNotAvailable) {
+        array.push(number);
+        return array.length - 1;
+      } else {
+        if (probableIndex)
+          return bottom;
+        else
+          return -1;
+      }
+    } else {
+      while (true) {
+        var val = array[center];
+        //if(number == val)
+        if (((key == undefined) ? (number == val) : (number[key] == val[key]))) {
+          return center;
+        } else if (bottom - top <= 1) {
+          if (addIfNotAvailable) {
+            array.splice(bottom, 0, number);
+            return bottom;
+          } else {
+            if (probableIndex)
+              return top;
+            else
+              return -1;
+          }
+        } else {
+          //if(number<val)
+          if (((key == undefined) ? (number < val) : (number[key] < val[key]))) {
+            bottom = center;
+            center = Math.floor((top + bottom) / 2);
+          } else {
+            top = center;
+            center = Math.floor((top + bottom) / 2);
+          }
+        }
+      }
+    }
+  }
 
   /* Util Library End */
   if (typeof define === "function" && define.amd) this.utils = utils, define(utils);
