@@ -188,6 +188,10 @@
       }
       cb(str);
     }
+    else{
+      //returning empty arry in callback incase the length of array is 0
+      cb([]);
+    }
   }
   utils.JSON2ARRAY = function(objArray) {
       var array = typeof objArray != 'object' ? [objArray] : objArray;
