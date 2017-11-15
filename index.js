@@ -1,4 +1,10 @@
+// Function Commneting is Missing also debug module
 ! function() {
+  if (typeof require === "function") {
+    fs = require('fs');
+    EasyZip = require('easy-zip').EasyZip;
+    d3 = require('d3');
+  }
   "use strict";
   var utils = {
     version: "1.0.0"
@@ -396,6 +402,23 @@
     return processSetting(replicatedScreenSetting.application);
   }
 
+  utils.zipFolderAndDownload = function(folderPath, cb) {
+    var zip = new EasyZip();
+    zip.zipFolder(folderPath, function() {
+      var zipFilePath = folderPath;
+      if (folderPath.slice(-1) == "/") {
+        zipFilePath = folderPath.substring(0, folderPath.length - 1);
+      }
+      //write data to http.Response
+      // zip.writeToResponse(res, 'ModelFiles');
+      fs.unlink(folderPath + ".zip", function() {
+        zip.writeToFile(folderPath + ".zip", function() {
+          cb(folderPath + ".zip");
+        });
+      });
+    });
+  }
+
   utils.evenDistributionRange = function(json, include, cb) {
     //example evenDistributionRange({input:[{start:1, end:11}],output:[]}, true);
     if (json.input.length <= 0) {
@@ -456,6 +479,39 @@
     });
     return retData;
   }; /* SelectKeys() end */
+
+  // This function similar to group by query of sql
+  //GroupBy(data, ["Plant", "cluster"], [{field:"Plant", alias:"Plant"}, {field:"AllocQty1to10TruckFinal", aggregation:"sum", alias:"AllocQty1to10TruckFinal"}])
+  utils.GroupBy = function(data, groupByArray, filedObjectOfArray) {
+    var result = [];
+    var nested_data = d3.nest();
+    groupByArray.forEach(function(d, i) {
+      nested_data = nested_data.key(function(k) {
+        return k[d];
+      });
+    });
+    nested_data = nested_data.rollup(function(allRows) {
+      var output = {};
+      filedObjectOfArray.forEach(function(selectField) {
+        if (selectField.hasOwnProperty("aggregation")) {
+          if (selectField.aggregation === "sum" || selectField.aggregation === "max" || selectField.aggregation === "min") {
+            output[selectField.alias || selectField.field] = d3[selectField.aggregation](allRows, function(d) {
+              return parseFloat(d[selectField.field]);
+            });
+          }
+          else if (selectField.aggregation === "count") {
+            output[selectField.alias || selectField.field] = allRows.length;
+          }
+        } else {
+          output[selectField.alias || selectField.field] = allRows[0][selectField.field];
+        }
+      });
+      result.push(output);
+      return allRows.length;
+    });
+    nested_data = nested_data.entries(data);
+    return result;
+  }; /* GroupBy() end */
 
   utils.sort = function(data, sortFields) {
     for (var i1 = 0; i1 < data.length; i1++) {
