@@ -411,9 +411,9 @@
       }
       //write data to http.Response
       // zip.writeToResponse(res, 'ModelFiles');
-      fs.unlink(folderPath + ".zip", function() {
-        zip.writeToFile(folderPath + ".zip", function() {
-          cb(folderPath + ".zip");
+      fs.unlink(zipFilePath + ".zip", function() {
+        zip.writeToFile(zipFilePath + ".zip", function() {
+          cb(zipFilePath + ".zip");
         });
       });
     });
