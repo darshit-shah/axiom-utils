@@ -150,17 +150,23 @@
       result += timestamp;
       return result;
     }
-    //CBT:THis method is used to convert JSON data to CSV format
-  utils.JSON2CSV = function(objArray, requireHeader, cb) {
+  utils.JSON2CSV = function(objArray, requireHeader,fieldSeparator, cb) {
+    if(arguments.length < 3 || arguments.length > 4){
+		throw Error("invalid Argument length");
+	}
 
-    var array = typeof objArray != 'object' ? [objArray] : objArray;
+	if(typeof fieldSeparator === 'function'){
+		cb = fieldSeparator;
+		fieldSeparator = ',';
+	}
+	var array = typeof objArray != 'object' ? [objArray] : objArray;
     //console.log(typeof objArray);
     var str = '';
     if (array.length > 0) {
 
       var keys = Object.keys(array[0]);
       if (requireHeader == true) {
-        str += keys.join(',') + '\r\n';
+        str += keys.join(fieldSeparator) + '\r\n';
       }
 
       //append data
@@ -172,8 +178,8 @@
             var val = array[i][keys[index]];
 
             if (typeof val == 'string' && val != null) {
-              //val = val.replace(/"/g,'\\"');
-              if (val.indexOf(',') != -1) {
+              val = val.replace(/"/g,'\\"');
+              if (val.indexOf(fieldSeparator) != -1) {
                 if (val != 'null')
                   line.push('"' + val + '"');
                 else
@@ -190,13 +196,13 @@
 
           }
         }
-        str += line.join(',') + '\r\n';
+        str += line.join(fieldSeparator) + '\r\n';
       }
       cb(str);
     }
-    else{
-      //returning empty arry in callback incase the length of array is 0
-      cb([]);
+    else{	
+      //returning empty arry in callback incase the length of array is 0	
+      cb([]);	
     }
   }
   utils.JSON2ARRAY = function(objArray) {
