@@ -1,6 +1,7 @@
 // Function Commneting is Missing also debug module
 ! function() {
   if (typeof require === "function") {
+    XL = require('xlsx')
     fs = require('fs');
     EasyZip = require('easy-zip').EasyZip;
     d3 = require('d3');
@@ -239,6 +240,43 @@
     }
     return objJSON;
   }
+
+  utils.JSON2EXCEL = function(jsonData, header, dateFormat) {
+    var excelData = {};
+    if (!Array.isArray(jsonData)) {
+      return null;
+    } else {
+      excelData = XL.utils.json_to_sheet(jsonData, { header: header, dateNF: dateFormat })
+      return excelData;
+    }
+  }
+
+
+  utils.EXCEL2JSON = function(excelFilePath, sheetName) {
+    if (!excelFilePath || !sheetName) {
+      throw Error('wrong number of arguements passed');
+    }
+    var excelfilename = excelFilePath.split('.')
+    var excelFormat = excelfilename[excelfilename.length - 1];
+    if (excelFormat == 'xlsx' || excelFormat == 'xls' || excelFormat == 'xlsb') {
+      var workbook = XL.readFile(excelFilePath);
+      if (!workbook.SheetNames.includes(sheetName)) {
+        return 'Sheet ' + sheetName + ' not present at given path';
+      }
+      var arrays = XL.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 })
+      let keys = arrays[0];
+      let values = arrays.slice(1);
+      let objects = values.map(array => {
+        let object = {};
+        keys.forEach((key, i) => object[key] = array[i]);
+        return object;
+      });
+      return objects;
+    } else {
+      return 'File format not supported';
+    }
+  }
+
   utils.concateString = function(stringArray, seperatorArray) {
     if (seperatorArray.length < (stringArray.length - 1)) {
       return {
