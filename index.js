@@ -5,11 +5,71 @@
     fs = require('fs');
     EasyZip = require('easy-zip').EasyZip;
     d3 = require('d3');
+    ruleEngine = require("axiom-rule-engine");
   }
   "use strict";
   var utils = {
     version: "1.0.0"
   };
+  utils.mergeArraysByProperty = function(keys,jsonData){
+    var finalArray = [];
+    var rulesArray = [];
+
+    function prepareRule(data, rule, inputFields, outputFields, defaultValue) {
+      data.forEach(function(d, i) {
+        var input = {};
+        inputFields.forEach(function(iData) {
+          input[iData] = d[iData];
+        });
+        var output = {};
+        outputFields.forEach(function(oData) {
+          output[oData] = d[oData];
+        });
+        rule.addRule(input, output);
+      });
+      rule.defaultResult = defaultValue;
+    }
+
+    for(var i=0;i<jsonData.length;i++){
+      rulesArray[i] = new ruleEngine({
+        type: "Lookup",
+        keys: keys
+      });
+      prepareRule(jsonData[i].data,rulesArray[i],keys,jsonData[i].output.map(function(d){ return d.name;}),{});
+    }
+    for(var i=0;i<jsonData.length;i++){
+      var statistics = rulesArray[i].getStatistics();
+
+      statistics.forEach(function(d) {
+        if (d.count === 0 && d.hasOwnProperty('defaultResult') === false) {
+          var objectToSearch = {};
+          keys.forEach(function(key) {
+            objectToSearch[key] = d.output[key];
+          });
+          var obj = utils.extend(true,{},objectToSearch);
+          // keep default values for previous array items
+          for(var j=0;j<i;j++){
+            jsonData[j].output.forEach(function(outputCol){
+              obj[outputCol.alias] = obj[outputCol.defaultValue];
+            });
+          }
+          //keep same values for current array item
+          jsonData[i].output.forEach(function(outputCol){
+            obj[outputCol.alias] = d.output[outputCol.name];
+          });
+          //lookup values from next array items
+          for(var j=i+1;j<jsonData.length;j++){
+            var result = rulesArray[j].getResult(objectToSearch);
+            jsonData[j].output.forEach(function(outputCol){
+              obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
+            });
+          }
+          finalArray.push(obj);
+        }
+      });
+    }
+    return finalArray;
+  }
 
   utils.extend = function() {
     var options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
