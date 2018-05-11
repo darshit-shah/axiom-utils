@@ -313,9 +313,7 @@ utils.JSON2EXCEL = function(jsonData,sheetName, header, dateFormat, filePath) {
     dateFormat = [dateFormat];
   }
   var workbook = {};
-  if(sheetName.length != jsonData.length || sheetName.length != header.length || jsonData.length != header.length) {
-    throw Error("SheetName doesn't match with SheetData");
-  } else {
+  if(sheetName.length == jsonData.length && jsonData.length == header.length && header.length == dateFormat.length) {
     workbook['Sheets'] = {};
     workbook['SheetNames'] = [];
     sheetName.forEach(function(ws_name, ws_key) {
@@ -330,6 +328,8 @@ utils.JSON2EXCEL = function(jsonData,sheetName, header, dateFormat, filePath) {
     })  ;
     XL.writeFile(workbook,filePath);
     return true;
+  } else {
+    throw Error("SheetName doesn't match with SheetData");
   }
 }
 
