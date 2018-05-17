@@ -303,23 +303,35 @@
     return objJSON;
   }
 
-utils.JSON2EXCEL = function(jsonData,sheetName, header, dateFormat,filePath) {
-  var excelData = {};
-  if(!filePath || !sheetName) {
-  	throw Error("SheetName or FilePath is not specified")
+utils.JSON2EXCEL = function(jsonData,sheetName, header, dateFormat, filePath) {
+  if(!filePath || !sheetName|| !jsonData) {
+    throw Error("jsonData or SheetName or FilePath is not specified")
   }
-  if (!Array.isArray(jsonData) || (header && !Array.isArray(header))) {
-    throw Error("Data/Header Passed is not an Array");
-  } else {
-    excelData = XL.utils.json_to_sheet(jsonData, { header: header, dateNF: dateFormat })
-    var workbook = { }
-    workbook['SheetNames'] = [sheetName];
-    workbook['Sheets'] = {}
-    workbook['Sheets'][sheetName] = excelData
-
-    console.log(JSON.stringify(workbook))
+  
+  if(!Array.isArray(sheetName)) {
+    jsonData = [jsonData];
+    sheetName = [sheetName];
+    header = [header];
+    dateFormat = [dateFormat];
+  }
+  var workbook = {};
+  if(sheetName.length == jsonData.length && jsonData.length == header.length && header.length == dateFormat.length) {
+    workbook['Sheets'] = {};
+    workbook['SheetNames'] = [];
+    sheetName.forEach(function(ws_name, ws_key) {
+      if (!Array.isArray(jsonData[ws_key]) || (header[ws_key] && !Array.isArray(header[ws_key]))) {
+        throw Error("Data/Header Passed is not an Array");
+      }
+      workbook['SheetNames'].push(ws_name);
+      /* make worksheet */
+      var worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key] });
+      /* Add the worksheet to the workbook */
+      workbook['Sheets'][ws_name] = worksheet;
+    })  ;
     XL.writeFile(workbook,filePath);
-    return excelData;
+    return true;
+  } else {
+    throw Error("SheetName doesn't match with SheetData");
   }
 }
 
