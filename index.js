@@ -50,7 +50,9 @@
           // keep default values for previous array items
           for(var j=0;j<i;j++){
             jsonData[j].output.forEach(function(outputCol){
-              obj[outputCol.alias] = obj[outputCol.defaultValue];
+              if(keys.indexOf(outputCol.name) == -1){
+                obj[outputCol.alias] = outputCol.defaultValue;
+              }
             });
           }
           //keep same values for current array item
