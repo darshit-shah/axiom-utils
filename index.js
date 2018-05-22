@@ -63,7 +63,9 @@
           for(var j=i+1;j<jsonData.length;j++){
             var result = rulesArray[j].getResult(objectToSearch);
             jsonData[j].output.forEach(function(outputCol){
-              obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
+              if(keys.indexOf(outputCol.name) == -1){
+                obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
+              }
             });
           }
           finalArray.push(obj);
