@@ -11,7 +11,7 @@
   var utils = {
     version: "1.0.0"
   };
-  utils.mergeArraysByProperty = function(keys,jsonData){
+  utils.mergeArraysByProperty = function(keys, jsonData) {
     var finalArray = [];
     var rulesArray = [];
 
@@ -30,14 +30,14 @@
       rule.defaultResult = defaultValue;
     }
 
-    for(var i=0;i<jsonData.length;i++){
+    for (var i = 0; i < jsonData.length; i++) {
       rulesArray[i] = new ruleEngine({
         type: "Lookup",
         keys: keys
       });
-      prepareRule(jsonData[i].data,rulesArray[i],keys,jsonData[i].output.map(function(d){ return d.name;}),{});
+      prepareRule(jsonData[i].data, rulesArray[i], keys, jsonData[i].output.map(function(d) { return d.name; }), {});
     }
-    for(var i=0;i<jsonData.length;i++){
+    for (var i = 0; i < jsonData.length; i++) {
       var statistics = rulesArray[i].getStatistics();
 
       statistics.forEach(function(d) {
@@ -46,24 +46,24 @@
           keys.forEach(function(key) {
             objectToSearch[key] = d.output[key];
           });
-          var obj = utils.extend(true,{},objectToSearch);
+          var obj = utils.extend(true, {}, objectToSearch);
           // keep default values for previous array items
-          for(var j=0;j<i;j++){
-            jsonData[j].output.forEach(function(outputCol){
-              if(keys.indexOf(outputCol.name) == -1){
+          for (var j = 0; j < i; j++) {
+            jsonData[j].output.forEach(function(outputCol) {
+              if (keys.indexOf(outputCol.name) == -1) {
                 obj[outputCol.alias] = outputCol.defaultValue;
               }
             });
           }
           //keep same values for current array item
-          jsonData[i].output.forEach(function(outputCol){
+          jsonData[i].output.forEach(function(outputCol) {
             obj[outputCol.alias] = d.output[outputCol.name];
           });
           //lookup values from next array items
-          for(var j=i+1;j<jsonData.length;j++){
+          for (var j = i + 1; j < jsonData.length; j++) {
             var result = rulesArray[j].getResult(objectToSearch);
-            jsonData[j].output.forEach(function(outputCol){
-              if(keys.indexOf(outputCol.name) == -1){
+            jsonData[j].output.forEach(function(outputCol) {
+              if (keys.indexOf(outputCol.name) == -1) {
                 obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
               }
             });
@@ -143,6 +143,9 @@
     }
     for (i; i < length; i++) {
       if ((options = arguments[i]) != null) {
+        if (jQ.isArray(target)) {
+          target = [];
+        }
         for (name in options) {
           src = target[name];
           copy = options[name];
@@ -167,64 +170,64 @@
     return target;
   }
   utils.uuid = function(length, chars, extraString) {
-      var mask = '';
-      var timestamp = '';
-      var timestampLength = 13;
-      if (length == undefined) length = 16;
-      if (chars == undefined) chars = 'aA#';
+    var mask = '';
+    var timestamp = '';
+    var timestampLength = 13;
+    if (length == undefined) length = 16;
+    if (chars == undefined) chars = 'aA#';
 
-      // AV on 18-11-2015 for add timestamp
-      // checking for invalid length
-      if (chars.indexOf('T') > -1 && length <= timestampLength && chars.length > 1) {
-        throw Error("invalid length");
-      } else if (chars.indexOf('T') > -1 && length > timestampLength && chars.length == 1) {
-        mask = (new Date()).getTime();
-      }
-      chars = chars.split("");
-      chars.forEach(function(char) {
-          if (char.indexOf('a') > -1)
-            mask += 'abcdefghijklmnopqrstuvwxyz';
-          else if (char.indexOf('A') > -1)
-            mask += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-          else if (char.indexOf('#') > -1)
-            mask += '0123456789';
-          else if (char.indexOf('!') > -1)
-            mask += '~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
-          else if (char.indexOf('T') > -1) {
-            timestamp = (new Date()).getTime();
-            length -= timestampLength;
-          } else
-            throw Error("invalid character found: " + char);
-        })
-        // if (chars.indexOf('a') > -1)
-        //     mask += 'abcdefghijklmnopqrstuvwxyz';
-        // if (chars.indexOf('A') > -1)
-        //     mask += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        // if (chars.indexOf('#') > -1)
-        //     mask += '0123456789';
-        // if (chars.indexOf('!') > -1)
-        //     mask += '~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
-
-      if (extraString != '' && extraString != null && extraString != undefined)
-        mask += extraString;
-      var result = '';
-      mask = mask.toString();
-      for (var i = length; i > 0; --i) {
-        result += mask[Math.round(Math.random() * (mask.length - 1))];
-      }
-      result += timestamp;
-      return result;
+    // AV on 18-11-2015 for add timestamp
+    // checking for invalid length
+    if (chars.indexOf('T') > -1 && length <= timestampLength && chars.length > 1) {
+      throw Error("invalid length");
+    } else if (chars.indexOf('T') > -1 && length > timestampLength && chars.length == 1) {
+      mask = (new Date()).getTime();
     }
-  utils.JSON2CSV = function(objArray, requireHeader,fieldSeparator, cb) {
-    if(arguments.length < 3 || arguments.length > 4){
-		throw Error("invalid Argument length");
-	}
+    chars = chars.split("");
+    chars.forEach(function(char) {
+      if (char.indexOf('a') > -1)
+        mask += 'abcdefghijklmnopqrstuvwxyz';
+      else if (char.indexOf('A') > -1)
+        mask += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      else if (char.indexOf('#') > -1)
+        mask += '0123456789';
+      else if (char.indexOf('!') > -1)
+        mask += '~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
+      else if (char.indexOf('T') > -1) {
+        timestamp = (new Date()).getTime();
+        length -= timestampLength;
+      } else
+        throw Error("invalid character found: " + char);
+    })
+    // if (chars.indexOf('a') > -1)
+    //     mask += 'abcdefghijklmnopqrstuvwxyz';
+    // if (chars.indexOf('A') > -1)
+    //     mask += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    // if (chars.indexOf('#') > -1)
+    //     mask += '0123456789';
+    // if (chars.indexOf('!') > -1)
+    //     mask += '~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
 
-	if(typeof fieldSeparator === 'function'){
-		cb = fieldSeparator;
-		fieldSeparator = ',';
-	}
-	var array = typeof objArray != 'object' ? [objArray] : objArray;
+    if (extraString != '' && extraString != null && extraString != undefined)
+      mask += extraString;
+    var result = '';
+    mask = mask.toString();
+    for (var i = length; i > 0; --i) {
+      result += mask[Math.round(Math.random() * (mask.length - 1))];
+    }
+    result += timestamp;
+    return result;
+  }
+  utils.JSON2CSV = function(objArray, requireHeader, fieldSeparator, cb) {
+    if (arguments.length < 3 || arguments.length > 4) {
+      throw Error("invalid Argument length");
+    }
+
+    if (typeof fieldSeparator === 'function') {
+      cb = fieldSeparator;
+      fieldSeparator = ',';
+    }
+    var array = typeof objArray != 'object' ? [objArray] : objArray;
     //console.log(typeof objArray);
     var str = '';
     if (array.length > 0) {
@@ -243,7 +246,7 @@
             var val = array[i][keys[index]];
 
             if (typeof val == 'string' && val != null) {
-              val = val.replace(/"/g,'\\"');
+              val = val.replace(/"/g, '\\"');
               if (val.indexOf(fieldSeparator) != -1) {
                 if (val != 'null')
                   line.push('"' + val + '"');
@@ -264,39 +267,38 @@
         str += line.join(fieldSeparator) + '\r\n';
       }
       cb(str);
-    }
-    else{	
-      //returning empty arry in callback incase the length of array is 0	
-      cb([]);	
+    } else {
+      //returning empty arry in callback incase the length of array is 0  
+      cb([]);
     }
   }
   utils.JSON2ARRAY = function(objArray) {
-      var array = typeof objArray != 'object' ? [objArray] : objArray;
-      //console.log(typeof objArray);
-      var arrData = [];
-      var str = '';
-      if (array.length > 0) {
-        var keys = Object.keys(array[0]);
-        arrData.push(keys)
+    var array = typeof objArray != 'object' ? [objArray] : objArray;
+    //console.log(typeof objArray);
+    var arrData = [];
+    var str = '';
+    if (array.length > 0) {
+      var keys = Object.keys(array[0]);
+      arrData.push(keys)
 
-        //append data
-        for (var i = 0; i < array.length; i++) {
-          var line = [];
+      //append data
+      for (var i = 0; i < array.length; i++) {
+        var line = [];
 
-          for (var index = 0; index < keys.length; index++) {
-            if (array[i].hasOwnProperty(keys[index])) {
-              var val = array[i][keys[index]];
-              line.push(val);
-            } else {
-              line.push(null);
-            }
+        for (var index = 0; index < keys.length; index++) {
+          if (array[i].hasOwnProperty(keys[index])) {
+            var val = array[i][keys[index]];
+            line.push(val);
+          } else {
+            line.push(null);
           }
-          arrData.push(line);
         }
+        arrData.push(line);
       }
-      return arrData;
     }
-    // Av : Array of Json to JSON
+    return arrData;
+  }
+  // Av : Array of Json to JSON
   utils.ARRAY2JSON = function(objArray, key) {
     var objJSON = {};
     for (var index = 0; index < objArray.length; index++) {
@@ -305,62 +307,62 @@
     return objJSON;
   }
 
-utils.JSON2EXCEL = function(jsonData,sheetName, header, dateFormat, filePath) {
-  if(!filePath || !sheetName|| !jsonData) {
-    throw Error("jsonData or SheetName or FilePath is not specified")
-  }
-  
-  if(!Array.isArray(sheetName)) {
-    jsonData = [jsonData];
-    sheetName = [sheetName];
-    header = [header];
-    dateFormat = [dateFormat];
-  }
-  var workbook = {};
-  if(sheetName.length == jsonData.length && jsonData.length == header.length && header.length == dateFormat.length) {
-    workbook['Sheets'] = {};
-    workbook['SheetNames'] = [];
-    sheetName.forEach(function(ws_name, ws_key) {
-      if (!Array.isArray(jsonData[ws_key]) || (header[ws_key] && !Array.isArray(header[ws_key]))) {
-        throw Error("Data/Header Passed is not an Array");
-      }
-      workbook['SheetNames'].push(ws_name);
-      /* make worksheet */
-      var worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key] });
-      /* Add the worksheet to the workbook */
-      workbook['Sheets'][ws_name] = worksheet;
-    })  ;
-    XL.writeFile(workbook,filePath);
-    return true;
-  } else {
-    throw Error("SheetName doesn't match with SheetData");
-  }
-}
-
-utils.EXCEL2JSON = function(excelFilePath, sheetName) {
-  if (!excelFilePath || !sheetName) {
-    throw Error('wrong number of arguements passed');
-  }
-  var excelfilename = excelFilePath.split('.')
-  var excelFormat = excelfilename[excelfilename.length - 1];
-  if (excelFormat == 'xlsx' || excelFormat == 'xls' || excelFormat == 'xlsb') {
-    var workbook = XL.readFile(excelFilePath);
-    if (!workbook.SheetNames.includes(sheetName)) {
-      throw Error('Sheet ' + sheetName + ' not present at given path');
+  utils.JSON2EXCEL = function(jsonData, sheetName, header, dateFormat, filePath) {
+    if (!filePath || !sheetName || !jsonData) {
+      throw Error("jsonData or SheetName or FilePath is not specified")
     }
-    var arrays = XL.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 })
-    let keys = arrays[0];
-    let values = arrays.slice(1);
-    let objects = values.map(array => {
-      let object = {};
-      keys.forEach((key, i) => object[key] = array[i]);
-      return object;
-    });
-    return objects;
-  } else {
-    throw Error('File format not supported');
+
+    if (!Array.isArray(sheetName)) {
+      jsonData = [jsonData];
+      sheetName = [sheetName];
+      header = [header];
+      dateFormat = [dateFormat];
+    }
+    var workbook = {};
+    if (sheetName.length == jsonData.length && jsonData.length == header.length && header.length == dateFormat.length) {
+      workbook['Sheets'] = {};
+      workbook['SheetNames'] = [];
+      sheetName.forEach(function(ws_name, ws_key) {
+        if (!Array.isArray(jsonData[ws_key]) || (header[ws_key] && !Array.isArray(header[ws_key]))) {
+          throw Error("Data/Header Passed is not an Array");
+        }
+        workbook['SheetNames'].push(ws_name);
+        /* make worksheet */
+        var worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key] });
+        /* Add the worksheet to the workbook */
+        workbook['Sheets'][ws_name] = worksheet;
+      });
+      XL.writeFile(workbook, filePath);
+      return true;
+    } else {
+      throw Error("SheetName doesn't match with SheetData");
+    }
   }
-}
+
+  utils.EXCEL2JSON = function(excelFilePath, sheetName) {
+    if (!excelFilePath || !sheetName) {
+      throw Error('wrong number of arguements passed');
+    }
+    var excelfilename = excelFilePath.split('.')
+    var excelFormat = excelfilename[excelfilename.length - 1];
+    if (excelFormat == 'xlsx' || excelFormat == 'xls' || excelFormat == 'xlsb') {
+      var workbook = XL.readFile(excelFilePath);
+      if (!workbook.SheetNames.includes(sheetName)) {
+        throw Error('Sheet ' + sheetName + ' not present at given path');
+      }
+      var arrays = XL.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 })
+      let keys = arrays[0];
+      let values = arrays.slice(1);
+      let objects = values.map(array => {
+        let object = {};
+        keys.forEach((key, i) => object[key] = array[i]);
+        return object;
+      });
+      return objects;
+    } else {
+      throw Error('File format not supported');
+    }
+  }
 
   utils.concateString = function(stringArray, seperatorArray) {
     if (seperatorArray.length < (stringArray.length - 1)) {
@@ -381,16 +383,16 @@ utils.EXCEL2JSON = function(excelFilePath, sheetName) {
 
   }
   utils.generateID = function(constant, values, dateObj) {
-      var idNumber = "";
-      constant = constant[0];
-      idNumber = constant.static;
-      idNumber = idNumber + constant.seperator + values.value;
-      idNumber = idNumber + constant.seperator + (dateObj.getFullYear().toString()).substr(2, 2);
-      idNumber = idNumber + constant.seperator + (dateObj.getMonth() + 1);
-      idNumber = idNumber + constant.seperator + dateObj.getDate();
-      return idNumber;
-    }
-    //CBT:THis method add pading zero to numbers
+    var idNumber = "";
+    constant = constant[0];
+    idNumber = constant.static;
+    idNumber = idNumber + constant.seperator + values.value;
+    idNumber = idNumber + constant.seperator + (dateObj.getFullYear().toString()).substr(2, 2);
+    idNumber = idNumber + constant.seperator + (dateObj.getMonth() + 1);
+    idNumber = idNumber + constant.seperator + dateObj.getDate();
+    return idNumber;
+  }
+  //CBT:THis method add pading zero to numbers
   utils.pad = function(n, width, paddingChar, z) {
     z = z || paddingChar;
     n = n + '';
@@ -627,8 +629,7 @@ utils.EXCEL2JSON = function(excelFilePath, sheetName) {
             output[selectField.alias || selectField.field] = d3[selectField.aggregation](allRows, function(d) {
               return parseFloat(d[selectField.field]);
             });
-          }
-          else if (selectField.aggregation === "count") {
+          } else if (selectField.aggregation === "count") {
             output[selectField.alias || selectField.field] = allRows.length;
           }
         } else {
@@ -691,7 +692,7 @@ utils.EXCEL2JSON = function(excelFilePath, sheetName) {
     });
     return JSON.stringify(newData);
   };
-  
+
   utils.getIndexOf = function(array, number, addIfNotAvailable, key, probableIndex) {
     if (array.length == 0) {
       if (addIfNotAvailable) {
