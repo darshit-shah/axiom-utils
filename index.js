@@ -307,7 +307,10 @@
     return objJSON;
   }
 
-  utils.JSON2EXCEL = function(jsonData, sheetName, header, dateFormat, filePath) {
+  utils.JSON2EXCEL = function(jsonData, sheetName, header, dateFormat, filePath,isSkipHeader) {
+    if(!isSkipHeader){
+      isSkipHeader=false;
+    }
     if (!filePath || !sheetName || !jsonData) {
       throw Error("jsonData or SheetName or FilePath is not specified")
     }
@@ -328,7 +331,7 @@
         }
         workbook['SheetNames'].push(ws_name);
         /* make worksheet */
-        var worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key] });
+        var worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key] , skipHeader:isSkipHeader});
         /* Add the worksheet to the workbook */
         workbook['Sheets'][ws_name] = worksheet;
       });
