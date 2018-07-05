@@ -3,7 +3,7 @@
   if (typeof require === "function") {
     XL = require('xlsx')
     fs = require('fs');
-    EasyZip = require('easy-zip').EasyZip;
+    EasyZip = require('easy-zip2').EasyZip;
     d3 = require('d3');
     ruleEngine = require("axiom-rule-engine");
   }
