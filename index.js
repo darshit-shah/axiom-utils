@@ -11,6 +11,29 @@
   var utils = {
     version: "1.0.0"
   };
+
+  utils.convertObjectKeysCaseInsensitive = function(row){
+    var updated_row = new Proxy({}, {
+      get: function(target, name) {
+        if (typeof name !== 'string') {
+          return undefined;
+        }
+        if (!(name.toLowerCase() in target)) {
+          return undefined;
+        }
+        return target[name.toLowerCase()];
+      },
+      set: function(target, name, value) {
+        if (typeof name !== 'string') {
+          return undefined;
+        }
+        target[name.toLowerCase()] = value;
+      }
+    });
+    Object.keys(row).forEach(d=>{updated_row[d]=row[d]})
+    return updated_row;
+  }
+  
   utils.mergeArraysByProperty = function(keys, jsonData) {
     var finalArray = [];
     var rulesArray = [];
