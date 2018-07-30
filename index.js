@@ -33,32 +33,32 @@
     Object.keys(row).forEach(d=>{updated_row[d]=row[d]})
     return updated_row;
   }
+
+  utils.prepareRule = function (data, rule, inputFields, outputFields, defaultValue) {
+    data.forEach(function(d, i) {
+      var input = {};
+      inputFields.forEach(function(iData) {
+        input[iData] = d[iData];
+      });
+      var output = {};
+      outputFields.forEach(function(oData) {
+        output[oData] = d[oData];
+      });
+      rule.addRule(input, output);
+    });
+    rule.defaultResult = defaultValue;
+  }
   
   utils.mergeArraysByProperty = function(keys, jsonData) {
     var finalArray = [];
     var rulesArray = [];
-
-    function prepareRule(data, rule, inputFields, outputFields, defaultValue) {
-      data.forEach(function(d, i) {
-        var input = {};
-        inputFields.forEach(function(iData) {
-          input[iData] = d[iData];
-        });
-        var output = {};
-        outputFields.forEach(function(oData) {
-          output[oData] = d[oData];
-        });
-        rule.addRule(input, output);
-      });
-      rule.defaultResult = defaultValue;
-    }
 
     for (var i = 0; i < jsonData.length; i++) {
       rulesArray[i] = new ruleEngine({
         type: "Lookup",
         keys: keys
       });
-      prepareRule(jsonData[i].data, rulesArray[i], keys, jsonData[i].output.map(function(d) { return d.name; }), {});
+      utils.prepareRule(jsonData[i].data, rulesArray[i], keys, jsonData[i].output.map(function(d) { return d.name; }), {});
     }
     for (var i = 0; i < jsonData.length; i++) {
       var statistics = rulesArray[i].getStatistics();
@@ -95,6 +95,55 @@
         }
       });
     }
+    return finalArray;
+  }
+
+  utils.getCommonElements = function(keys, jsonData) {
+    var finalArray = [];
+    var rulesArray = [];
+
+    for (var i = 0; i < jsonData.length; i++) {
+      rulesArray[i] = new ruleEngine({
+        type: "Lookup",
+        keys: keys
+      });
+      utils.prepareRule(jsonData[i].data, rulesArray[i], keys, jsonData[i].output.map(function(d) { return d.name; }), {});
+    }
+    var statistics = rulesArray[0].getStatistics();
+
+    statistics.forEach(function(d) {
+      if (d.count === 0 && d.hasOwnProperty('defaultResult') === false) {
+        var objectToSearch = {};
+        keys.forEach(function(key) {
+          objectToSearch[key] = d.output[key];
+        });
+        var obj = utils.extend(true, {}, objectToSearch);
+        //keep same values for current array item
+        jsonData[0].output.forEach(function(outputCol) {
+          obj[outputCol.alias] = d.output[outputCol.name];
+        });
+        var elementNotFound = false;
+        //lookup values from next array items
+        for (var j = 1; j < jsonData.length; j++) {
+          var result = rulesArray[j].getResult(objectToSearch);
+          if(Object.keys(result).length == 0){
+            elementNotFound = true;
+            break;
+          }
+          else{
+            jsonData[j].output.forEach(function(outputCol) {
+              if (keys.indexOf(outputCol.name) == -1) {
+                obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
+              }
+            });
+          }
+        }
+        if(!elementNotFound){
+          finalArray.push(obj);
+        }
+      }
+    });
+    
     return finalArray;
   }
 
