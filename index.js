@@ -30,7 +30,10 @@
         target[name.toLowerCase()] = value;
       }
     });
-    Object.keys(row).forEach(d=>{updated_row[d]=row[d]})
+    Object.keys(row).forEach(d=>{updated_row[d]=row[d]});
+    updated_row.hasOwnProperty = function(name) {
+      return name.toLowerCase() in this;
+    }
     return updated_row;
   }
 
