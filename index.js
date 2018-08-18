@@ -293,8 +293,8 @@
     result += timestamp;
     return result;
   }
-  utils.JSON2CSV = function(objArray, requireHeader, fieldSeparator, cb) {
-    if (arguments.length < 3 || arguments.length > 4) {
+  utils.JSON2CSV = function(objArray, requireHeader, fieldSeparator, headerSequence, cb) {
+    if (arguments.length < 3 || arguments.length > 5) {
       throw Error("invalid Argument length");
     }
 
@@ -302,6 +302,12 @@
       cb = fieldSeparator;
       fieldSeparator = ',';
     }
+
+    if (typeof headerSequence === 'function') {
+      cb = headerSequence;
+      headerSequence = []; 
+    }
+
     var array = typeof objArray != 'object' ? [objArray] : objArray;
     //console.log(typeof objArray);
     var str = '';
@@ -309,9 +315,12 @@
 
       var keys = Object.keys(array[0]);
       if (requireHeader == true) {
+        if(Array.isArray(headerSequence) && headerSequence.length > 0) {
+          keys = headerSequence
+          // str += keys.join(fieldSeparator) + '\r\n';
+        }
         str += keys.join(fieldSeparator) + '\r\n';
       }
-
       //append data
       for (var i = 0; i < array.length; i++) {
         var line = [];
