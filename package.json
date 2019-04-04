@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/darshit-shah/axiom-utils/issues"
   },
+  "dependencies": {
+    "xlsx": "^0.14.2",
+    "axiom-rule-engine": "^1.0.3",
+    "easy-zip2": "^2.0.0",
+    "d3": "^5.9.2"
+  },
   "homepage": "https://github.com/darshit-shah/axiom-utils#readme"
 }
