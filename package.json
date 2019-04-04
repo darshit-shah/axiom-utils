@@ -1,6 +1,6 @@
 {
   "name": "axiom-utils",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "common utilities used in axiom platform",
   "main": "index.js",
   "scripts": {
@@ -16,10 +16,10 @@
     "url": "https://github.com/darshit-shah/axiom-utils/issues"
   },
   "dependencies": {
-    "xlsx": "^0.14.2",
-    "axiom-rule-engine": "^1.0.3",
-    "easy-zip2": "^2.0.0",
-    "d3": "^5.9.2"
+    "xlsx": "0.14.2",
+    "axiom-rule-engine": "1.0.3",
+    "easy-zip2": "2.0.0",
+    "d3": "4.0.0"
   },
   "homepage": "https://github.com/darshit-shah/axiom-utils#readme"
 }
