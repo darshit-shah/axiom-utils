@@ -8,12 +8,12 @@
     ruleEngine = require("axiom-rule-engine");
   }
   "use strict";
-  var utils = {
+  const utils = {
     version: "1.0.0"
   };
 
   utils.convertObjectKeysCaseInsensitive = function(row){
-    var updated_row = new Proxy({}, {
+    const updated_row = new Proxy({}, {
       get: function(target, name) {
         if (typeof name !== 'string') {
           return undefined;
@@ -39,11 +39,11 @@
 
   utils.prepareRule = function (data, rule, inputFields, outputFields, defaultValue) {
     data.forEach(function(d, i) {
-      var input = {};
+      const input = {};
       inputFields.forEach(function(iData) {
         input[iData] = d[iData];
       });
-      var output = {};
+      const output = {};
       outputFields.forEach(function(oData) {
         output[oData] = d[oData];
       });
@@ -53,28 +53,28 @@
   }
   
   utils.mergeArraysByProperty = function(keys, jsonData) {
-    var finalArray = [];
-    var rulesArray = [];
+    const finalArray = [];
+    const rulesArray = [];
 
-    for (var i = 0; i < jsonData.length; i++) {
+    for (let i = 0; i < jsonData.length; i++) {
       rulesArray[i] = new ruleEngine({
         type: "Lookup",
         keys: keys
       });
       utils.prepareRule(jsonData[i].data, rulesArray[i], keys, jsonData[i].output.map(function(d) { return d.name; }), {});
     }
-    for (var i = 0; i < jsonData.length; i++) {
-      var statistics = rulesArray[i].getStatistics();
+    for (let i = 0; i < jsonData.length; i++) {
+      const statistics = rulesArray[i].getStatistics();
 
       statistics.forEach(function(d) {
         if (d.count === 0 && d.hasOwnProperty('defaultResult') === false) {
-          var objectToSearch = {};
+          const objectToSearch = {};
           keys.forEach(function(key) {
             objectToSearch[key] = d.output[key];
           });
-          var obj = utils.extend(true, {}, objectToSearch);
+          const obj = utils.extend(true, {}, objectToSearch);
           // keep default values for previous array items
-          for (var j = 0; j < i; j++) {
+          for (let j = 0; j < i; j++) {
             jsonData[j].output.forEach(function(outputCol) {
               if (keys.indexOf(outputCol.name) == -1) {
                 obj[outputCol.alias] = outputCol.defaultValue;
@@ -86,8 +86,8 @@
             obj[outputCol.alias] = d.output[outputCol.name];
           });
           //lookup values from next array items
-          for (var j = i + 1; j < jsonData.length; j++) {
-            var result = rulesArray[j].getResult(objectToSearch);
+          for (let j = i + 1; j < jsonData.length; j++) {
+            const result = rulesArray[j].getResult(objectToSearch);
             jsonData[j].output.forEach(function(outputCol) {
               if (keys.indexOf(outputCol.name) == -1) {
                 obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
@@ -102,33 +102,33 @@
   }
 
   utils.getCommonElements = function(keys, jsonData) {
-    var finalArray = [];
-    var rulesArray = [];
+    const finalArray = [];
+    const rulesArray = [];
 
-    for (var i = 0; i < jsonData.length; i++) {
+    for (let i = 0; i < jsonData.length; i++) {
       rulesArray[i] = new ruleEngine({
         type: "Lookup",
         keys: keys
       });
       utils.prepareRule(jsonData[i].data, rulesArray[i], keys, jsonData[i].output.map(function(d) { return d.name; }), {});
     }
-    var statistics = rulesArray[0].getStatistics();
+    const statistics = rulesArray[0].getStatistics();
 
     statistics.forEach(function(d) {
       if (d.count === 0 && d.hasOwnProperty('defaultResult') === false) {
-        var objectToSearch = {};
+        const objectToSearch = {};
         keys.forEach(function(key) {
           objectToSearch[key] = d.output[key];
         });
-        var obj = utils.extend(true, {}, objectToSearch);
+        const obj = utils.extend(true, {}, objectToSearch);
         //keep same values for current array item
         jsonData[0].output.forEach(function(outputCol) {
           obj[outputCol.alias] = d.output[outputCol.name];
         });
-        var elementNotFound = false;
+        const elementNotFound = false;
         //lookup values from next array items
-        for (var j = 1; j < jsonData.length; j++) {
-          var result = rulesArray[j].getResult(objectToSearch);
+        for (let j = 1; j < jsonData.length; j++) {
+          const result = rulesArray[j].getResult(objectToSearch);
           if(Object.keys(result).length == 0){
             elementNotFound = true;
             break;
@@ -151,7 +151,7 @@
   }
 
   utils.extend = function() {
-    var options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
+    let options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
       i = 1,
       length = arguments.length,
       deep = false,
@@ -199,7 +199,7 @@
           } catch (e) {
             return false
           }
-          var key;
+          let key;
           for (key in obj) {}
           return key === undefined || hasOwn.call(obj, key)
         }
@@ -245,9 +245,9 @@
     return target;
   }
   utils.uuid = function(length, chars, extraString) {
-    var mask = '';
-    var timestamp = '';
-    var timestampLength = 13;
+    let mask = '';
+    let timestamp = '';
+    const timestampLength = 13;
     if (length == undefined) length = 16;
     if (chars == undefined) chars = 'aA#';
 
@@ -285,15 +285,15 @@
 
     if (extraString != '' && extraString != null && extraString != undefined)
       mask += extraString;
-    var result = '';
+    let result = '';
     mask = mask.toString();
-    for (var i = length; i > 0; --i) {
+    for (let i = length; i > 0; --i) {
       result += mask[Math.round(Math.random() * (mask.length - 1))];
     }
     result += timestamp;
     return result;
   }
-  utils.JSON2CSV = function(objArray, requireHeader, fieldSeparator, headerSequence, cb) {
+  utils.JSON2CSV = function(objArray, requireHeader, fieldSeparator, headerSequence,cb) {
     if (arguments.length < 3 || arguments.length > 5) {
       throw Error("invalid Argument length");
     }
@@ -304,16 +304,16 @@
     }
 
     if (typeof headerSequence === 'function') {
-      cb = headerSequence;
+      cb =  headerSequence;
       headerSequence = []; 
     }
 
-    var array = typeof objArray != 'object' ? [objArray] : objArray;
+    const array = typeof objArray != 'object' ? [objArray] : objArray;
     //console.log(typeof objArray);
-    var str = '';
+    let str = '';
     if (array.length > 0) {
 
-      var keys = Object.keys(array[0]);
+      const keys = Object.keys(array[0]);
       if (requireHeader == true) {
         if(Array.isArray(headerSequence) && headerSequence.length > 0) {
           keys = headerSequence
@@ -322,12 +322,12 @@
         str += keys.join(fieldSeparator) + '\r\n';
       }
       //append data
-      for (var i = 0; i < array.length; i++) {
-        var line = [];
+      for (let i = 0; i < array.length; i++) {
+        const line = [];
 
-        for (var index = 0; index < keys.length; index++) {
+        for (let index = 0; index < keys.length; index++) {
           if (array[i].hasOwnProperty(keys[index])) {
-            var val = array[i][keys[index]];
+            let val = array[i][keys[index]];
 
             if (typeof val == 'string' && val != null) {
               val = val.replace(/"/g, '\\"');
@@ -350,28 +350,34 @@
         }
         str += line.join(fieldSeparator) + '\r\n';
       }
-      cb(str);
+      if(cb && typeof cb == 'function')
+        cb(str);
+      else
+        return str;
     } else {
       //returning empty arry in callback incase the length of array is 0  
-      cb([]);
+      if(cb && typeof cb == 'function')
+        cb([]);
+      else
+        return [];
     }
   }
   utils.JSON2ARRAY = function(objArray) {
-    var array = typeof objArray != 'object' ? [objArray] : objArray;
+    const array = typeof objArray != 'object' ? [objArray] : objArray;
     //console.log(typeof objArray);
-    var arrData = [];
-    var str = '';
+    const arrData = [];
+    let str = '';
     if (array.length > 0) {
-      var keys = Object.keys(array[0]);
+      const keys = Object.keys(array[0]);
       arrData.push(keys)
 
       //append data
-      for (var i = 0; i < array.length; i++) {
-        var line = [];
+      for (let i = 0; i < array.length; i++) {
+        const line = [];
 
-        for (var index = 0; index < keys.length; index++) {
+        for (let index = 0; index < keys.length; index++) {
           if (array[i].hasOwnProperty(keys[index])) {
-            var val = array[i][keys[index]];
+            const val = array[i][keys[index]];
             line.push(val);
           } else {
             line.push(null);
@@ -384,8 +390,8 @@
   }
   // Av : Array of Json to JSON
   utils.ARRAY2JSON = function(objArray, key) {
-    var objJSON = {};
-    for (var index = 0; index < objArray.length; index++) {
+    const objJSON = {};
+    for (let index = 0; index < objArray.length; index++) {
       objJSON[objArray[index][key]] = objArray[index];
     }
     return objJSON;
@@ -405,7 +411,7 @@
       header = [header];
       dateFormat = [dateFormat];
     }
-    var workbook = {};
+    const workbook = {};
     if (sheetName.length == jsonData.length && jsonData.length == header.length && header.length == dateFormat.length) {
       workbook['Sheets'] = {};
       workbook['SheetNames'] = [];
@@ -415,7 +421,7 @@
         }
         workbook['SheetNames'].push(ws_name);
         /* make worksheet */
-        var worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key], skipHeader:skipHeader});
+        const worksheet = XL.utils.json_to_sheet(jsonData[ws_key], { header: header[ws_key], dateNF: dateFormat[ws_key], skipHeader:skipHeader});
         /* Add the worksheet to the workbook */
         workbook['Sheets'][ws_name] = worksheet;
       });
@@ -430,14 +436,14 @@
     if (!excelFilePath || !sheetName) {
       throw Error('wrong number of arguements passed');
     }
-    var excelfilename = excelFilePath.split('.')
-    var excelFormat = excelfilename[excelfilename.length - 1];
+    const excelfilename = excelFilePath.split('.')
+    const excelFormat = excelfilename[excelfilename.length - 1];
     if (excelFormat == 'xlsx' || excelFormat == 'xls' || excelFormat == 'xlsb') {
-      var workbook = XL.readFile(excelFilePath);
+      const workbook = XL.readFile(excelFilePath);
       if (!workbook.SheetNames.includes(sheetName)) {
         throw Error('Sheet ' + sheetName + ' not present at given path');
       }
-      var arrays = XL.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 })
+      const arrays = XL.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 })
       let keys = arrays[0];
       let values = arrays.slice(1);
       let objects = values.map(array => {
@@ -458,7 +464,7 @@
         error: "Enter Proper Seperator"
       };
     }
-    var retString = "";
+    let retString = "";
     seperatorArray.forEach(function(d, i) {
       retString = retString + stringArray[i] + d;
     });
@@ -470,7 +476,7 @@
 
   }
   utils.generateID = function(constant, values, dateObj) {
-    var idNumber = "";
+    let idNumber = "";
     constant = constant[0];
     idNumber = constant.static;
     idNumber = idNumber + constant.seperator + values.value;
@@ -486,12 +492,12 @@
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
   utils.CSV2JSON = function(csvData, headerMapping, lineSeperator, columnSeperator, ignoreNotMatchingLines, enclosedChar, escapeChar) {
-    var retJSONdata = [];
-    var headerData = null;
-    var all_rows = null;
-    var flag = false;
-    var retValue = null;
-    var columnSeperator = columnSeperator || ",";
+    const retJSONdata = [];
+    let headerData = null;
+    let all_rows = null;
+    let flag = false;
+    let retValue = null;
+    columnSeperator = columnSeperator || ",";
     // var lineSeperator = lineSeperator || "\n";
     // all_rows = csvData.split(lineSeperator);
     if(lineSeperator != null){
@@ -508,8 +514,8 @@
       if (d.length == 0) {
         return true;
       } else {
-        var trmpJSON = {};
-        var tempRow = utils.splitByChar(d, columnSeperator, enclosedChar, enclosedChar, true, true, escapeChar);
+        const trmpJSON = {};
+        const tempRow = utils.splitByChar(d, columnSeperator, enclosedChar, enclosedChar, true, true, escapeChar);
         headerData.forEach(function(d1, i) {
           if (headerMapping != undefined && Array.isArray(headerMapping) === true) {
             if (tempRow[i] != undefined) {
@@ -610,8 +616,8 @@
   }
   utils.gerenateSubsetBasedOnKeys = function(settings, keyArray) {
     function processSetting(array) {
-      for (var i = 0; i < array.length; i++) {
-        var d = array[i];
+      for (let i = 0; i < array.length; i++) {
+        let d = array[i];
         if (d.hasOwnProperty('child')) {
           returnArray = processSetting(d.child);
           if (d.child.length === 0) {
@@ -627,63 +633,132 @@
       }
       return array;
     }
-    var replicatedScreenSetting = utils.extend(true, {}, settings);
+    const replicatedScreenSetting = utils.extend(true, {}, settings);
     return processSetting(replicatedScreenSetting.application);
   }
 
   utils.zipFolderAndDownload = function(folderPath, cb) {
-    var zip = new EasyZip();
-    zip.zipFolder(folderPath, function() {
-      var zipFilePath = folderPath;
-      if (folderPath.slice(-1) == "/") {
-        zipFilePath = folderPath.substring(0, folderPath.length - 1);
-      }
-      //write data to http.Response
-      // zip.writeToResponse(res, 'ModelFiles');
-      fs.unlink(zipFilePath + ".zip", function() {
-        zip.writeToFile(zipFilePath + ".zip", function() {
-          cb(zipFilePath + ".zip");
+    const zip = new EasyZip();
+    if(cb){
+      zip.zipFolder(folderPath, function() {
+        const zipFilePath = folderPath;
+        if (folderPath.slice(-1) == "/") {
+          zipFilePath = folderPath.substring(0, folderPath.length - 1);
+        }
+        //write data to http.Response
+        // zip.writeToResponse(res, 'ModelFiles');
+        fs.unlink(zipFilePath + ".zip", function() {
+          zip.writeToFile(zipFilePath + ".zip", function() {
+            cb(zipFilePath + ".zip");
+          });
         });
       });
-    });
+    }else{
+      return new Promise((resolve, reject) => {
+        zip.zipFolder(folderPath, function(err) {
+          if(err){
+            reject(err);
+          }
+          const zipFilePath = folderPath;
+          if (folderPath.slice(-1) == "/") {
+            zipFilePath = folderPath.substring(0, folderPath.length - 1);
+          }
+          //write data to http.Response
+          // zip.writeToResponse(res, 'ModelFiles');
+          fs.unlink(zipFilePath + ".zip", function(err) {
+            if(err){
+              reject(err);
+            }
+            zip.writeToFile(zipFilePath + ".zip", function(err) {
+              if(err){
+                reject(err);
+              }else{
+                resolve(zipFilePath + ".zip");
+              }
+            });
+          });
+        });
+      })
+    }
   }
 
   utils.evenDistributionRange = function(json, include, cb) {
     //example evenDistributionRange({input:[{start:1, end:11}],output:[]}, true);
-    if (json.input.length <= 0) {
-      console.log(json.output);
-      if (cb) {
-        cb(json);
+    if(cb){
+      if (json.input.length <= 0) {
+        console.log(json.output);
+        if (cb) {
+          cb(json);
+        }
+        return;
       }
-      return;
+      const currInput = json.input.shift();
+      const start = currInput.start;
+      const end = currInput.end;
+      if (include === true) {
+        json.output.push(start);
+        json.output.push(end);
+        // console.log("start", start);
+        // console.log("end", end);
+      }
+      const middle = Math.floor((start + end) / 2);
+      // console.log("middle", middle);
+      json.output.push(middle);
+      if (middle - start > 1) {
+        json.input.push({
+          start: start,
+          end: middle
+        });
+      }
+      if (end - middle > 1) {
+        json.input.push({
+          start: middle,
+          end: end
+        });
+      }
+      setTimeout(function() {
+        utils.evenDistributionRange(json, false, cb);
+      }, 1);
+    }else{
+      return new Promise((resolve, reject) => {
+        if (json.input.length <= 0) {
+          console.log(json.output);
+          // if (cb) {
+          //   cb(json);
+          // }
+          // return;
+          resolve(json);
+        }else{
+          const currInput = json.input.shift();
+          const start = currInput.start;
+          const end = currInput.end;
+          if (include === true) {
+            json.output.push(start);
+            json.output.push(end);
+            // console.log("start", start);
+            // console.log("end", end);
+          }
+          const middle = Math.floor((start + end) / 2);
+          // console.log("middle", middle);
+          json.output.push(middle);
+          if (middle - start > 1) {
+            json.input.push({
+              start: start,
+              end: middle
+            });
+          }
+          if (end - middle > 1) {
+            json.input.push({
+              start: middle,
+              end: end
+            });
+          }
+          setTimeout(function() {
+            utils.evenDistributionRange(json, false);
+          }, 1);
+        }
+      })
     }
-    var currInput = json.input.shift();
-    var start = currInput.start;
-    var end = currInput.end;
-    if (include === true) {
-      json.output.push(start);
-      json.output.push(end);
-      // console.log("start", start);
-      // console.log("end", end);
-    }
-    var middle = Math.floor((start + end) / 2);
-    // console.log("middle", middle);
-    json.output.push(middle);
-    if (middle - start > 1) {
-      json.input.push({
-        start: start,
-        end: middle
-      });
-    }
-    if (end - middle > 1) {
-      json.input.push({
-        start: middle,
-        end: end
-      });
-    }
-    setTimeout(function() {
-      utils.evenDistributionRange(json, false, cb);
-    }, 1);
   }
 
   // AV: this function is use for select particular filed in data like sql select
@@ -696,7 +771,7 @@
 
   // AV: this function use in inside Select function
   utils.SelectKeys = function(jsonOBJ, fieldArray) {
-    var retData = {};
+    const retData = {};
     fieldArray.forEach(function(f, i) {
       if (typeof f === "string")
         retData[f] = jsonOBJ[f];
@@ -712,15 +787,15 @@
   // This function similar to group by query of sql
   //GroupBy(data, ["Plant", "cluster"], [{field:"Plant", alias:"Plant"}, {field:"AllocQty1to10TruckFinal", aggregation:"sum", alias:"AllocQty1to10TruckFinal"}])
   utils.GroupBy = function(data, groupByArray, filedObjectOfArray) {
-    var result = [];
-    var nested_data = d3.nest();
+    const result = [];
+    let nested_data = d3.nest();
     groupByArray.forEach(function(d, i) {
       nested_data = nested_data.key(function(k) {
         return k[d];
       });
     });
     nested_data = nested_data.rollup(function(allRows) {
-      var output = {};
+      const output = {};
       filedObjectOfArray.forEach(function(selectField) {
         if (selectField.hasOwnProperty("aggregation")) {
           if (selectField.aggregation === "sum" || selectField.aggregation === "max" || selectField.aggregation === "min") {
@@ -742,11 +817,11 @@
   }; /* GroupBy() end */
 
   utils.sort = function(data, sortFields) {
-    for (var i1 = 0; i1 < data.length; i1++) {
-      for (var i2 = i1 + 1; i2 < data.length; i2++) {
-        var isChange = sortFields.some(function(field) {
-          var fieldName = "";
-          var sortASC = true;
+    for (let i1 = 0; i1 < data.length; i1++) {
+      for (let i2 = i1 + 1; i2 < data.length; i2++) {
+        const isChange = sortFields.some(function(field) {
+          let fieldName = "";
+          let sortASC = true;
           if (typeof field === "string") {
             fieldName = field;
             sortASC = true;
@@ -765,7 +840,7 @@
           }
         });
         if (isChange === true) {
-          var a = data[i1];
+          let a = data[i1];
           data[i1] = data[i2];
           data[i2] = a;
         }
@@ -777,10 +852,10 @@
   // AA : 25APR2016
   // METHOD TO REPLACE " WITH \\"
   utils.stringifyForDB = function(data) {
-    var newData = {};
-    var fields = Object.keys(data);
+    const newData = {};
+    const fields = Object.keys(data);
     fields.forEach(function(field) {
-      var replacedData = data[field];
+      let replacedData = data[field];
       if (replacedData != null) {
         // newData[field] = replacedData.toString().replace(/\"/ig, "\\\"");
         newData[field] = replacedData.toString().replace(/\"/ig, "\\\"").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t")
@@ -800,9 +875,9 @@
         return -1;
       }
     }
-    var top = 0;
-    var bottom = array.length;
-    var center = Math.floor((top + bottom) / 2);
+    let top = 0;
+    let bottom = array.length;
+    let center = Math.floor((top + bottom) / 2);
     //if(number<array[0])
     if (((key == undefined) ? (number < array[0]) : (number[key] < array[0][key]))) {
       if (addIfNotAvailable) {
@@ -828,7 +903,7 @@
       }
     } else {
       while (true) {
-        var val = array[center];
+        let val = array[center];
         //if(number == val)
         if (((key == undefined) ? (number == val) : (number[key] == val[key]))) {
           return center;
