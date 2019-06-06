@@ -125,7 +125,7 @@
         jsonData[0].output.forEach(function(outputCol) {
           obj[outputCol.alias] = d.output[outputCol.name];
         });
-        const elementNotFound = false;
+        let elementNotFound = false;
         //lookup values from next array items
         for (let j = 1; j < jsonData.length; j++) {
           const result = rulesArray[j].getResult(objectToSearch);
