@@ -641,7 +641,7 @@
     const zip = new EasyZip();
     if(cb){
       zip.zipFolder(folderPath, function() {
-        const zipFilePath = folderPath;
+        let zipFilePath = folderPath;
         if (folderPath.slice(-1) == "/") {
           zipFilePath = folderPath.substring(0, folderPath.length - 1);
         }
