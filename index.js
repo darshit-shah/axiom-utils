@@ -313,7 +313,7 @@
     let str = '';
     if (array.length > 0) {
 
-      const keys = Object.keys(array[0]);
+      let keys = Object.keys(array[0]);
       if (requireHeader == true) {
         if(Array.isArray(headerSequence) && headerSequence.length > 0) {
           keys = headerSequence
@@ -323,7 +323,7 @@
       }
       //append data
       for (let i = 0; i < array.length; i++) {
-        const line = [];
+        let line = [];
 
         for (let index = 0; index < keys.length; index++) {
           if (array[i].hasOwnProperty(keys[index])) {
