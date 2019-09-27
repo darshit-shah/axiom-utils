@@ -6,6 +6,7 @@
     EasyZip = require('easy-zip2').EasyZip;
     d3 = require('d3');
     ruleEngine = require("axiom-rule-engine");
+    xml2json = require("xml2json");
   }
   "use strict";
   const utils = {
@@ -931,6 +932,14 @@
     }
   }
 
+  utils.xmlToJson = function(xml) {
+    return JSON.parse(xml2json.toJson(xml)); 
+  }
+
+  utils.jsonToXml = function(json) {
+    return xml2json.toXml(json);
+  }
+  
   /* Util Library End */
   if (typeof define === "function" && define.amd) this.utils = utils, define(utils);
   else if (typeof module === "object" && module.exports) module.exports = utils;
