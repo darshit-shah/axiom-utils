@@ -18,7 +18,7 @@
   "dependencies": {
     "xlsx": "0.14.2",
     "axiom-rule-engine": "1.0.3",
-    "easy-zip2": "2.0.0",
+    "easy-zip2": "3.0.0",
     "d3": "4.0.0"
   },
   "homepage": "https://github.com/darshit-shah/axiom-utils#readme"
