@@ -444,7 +444,7 @@
       if (!workbook.SheetNames.includes(sheetName)) {
         throw Error('Sheet ' + sheetName + ' not present at given path');
       }
-      const arrays = XL.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 })
+      const arrays = XL.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 })
       let keys = arrays[0];
       let values = arrays.slice(1);
       let objects = values.map(array => {
