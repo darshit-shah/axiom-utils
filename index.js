@@ -331,7 +331,7 @@
             let val = array[i][keys[index]];
 
             if (typeof val == 'string' && val != null) {
-              val = val.replace(/"/g, '\\"');
+              val = val.replace(/"/g, '""');
               if (val.indexOf(fieldSeparator) != -1) {
                 if (val != 'null')
                   line.push('"' + val + '"');
