@@ -667,9 +667,6 @@
           //write data to http.Response
           // zip.writeToResponse(res, 'ModelFiles');
           fs.unlink(zipFilePath + ".zip", function(err) {
-            if(err){
-              reject(err);
-            }
             zip.writeToFile(zipFilePath + ".zip", function(err) {
               if(err){
                 reject(err);
