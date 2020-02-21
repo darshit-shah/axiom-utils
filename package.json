@@ -18,7 +18,7 @@
   "dependencies": {
     "axiom-rule-engine": "1.0.3",
     "d3": "4.0.0",
-    "easy-zip2": "3.0.0",
+    "easy-zip2": "3.1.0",
     "xlsx": "0.14.2",
     "xml2json": "^0.11.2"
   },
