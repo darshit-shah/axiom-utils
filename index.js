@@ -331,11 +331,11 @@
             let val = array[i][keys[index]];
 
             if (typeof val == 'string' && val != null) {
-              val = val.replace(/"/g, '""');
-              if (val.indexOf(fieldSeparator) != -1) {
-                if (val != 'null')
+              if (val.indexOf(fieldSeparator) != -1 || val.indexOf('"')!=-1) {
+                if (val != 'null'){
+                  val = val.replace(/"/g, '""');
                   line.push('"' + val + '"');
-                else
+                 } else
                   line.push('');
               } else {
                 if (val != 'null')
