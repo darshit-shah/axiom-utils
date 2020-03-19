@@ -389,13 +389,18 @@
     }
     return arrData;
   }
-  // Av : Array of Json to JSON
-  utils.ARRAY2JSON = function(objArray, key) {
-    const objJSON = {};
-    for (let index = 0; index < objArray.length; index++) {
-      objJSON[key[index]] = objArray[index];
+  // Array of array to JSON
+  utils.ARRAY2JSON = function(dataArray, headerArray) {
+    let arrayJSON = [];
+    for(let rowIndex = 0; rowIndex < dataArray.length; rowIndex++) {
+      const objJSON = {};
+      let currDataArray = dataArray[rowIndex];
+      for (let colIndex = 0; colIndex < currDataArray.length; colIndex++) {
+        objJSON[headerArray[colIndex]] = currDataArray[colIndex];
+      }
+      arrayJSON.push(objJSON);
     }
-    return objJSON;
+    return arrayJSON;
   }
 
   utils.JSON2EXCEL = function(jsonData, sheetName, header, dateFormat, filePath,skipHeader) {
@@ -497,7 +502,7 @@
     let currentProcessingLine = "";
     let isCurrentProcessingLineEnclosed = false; // = enclosedChar == csvData[0] ? true : false;
     // let jsonData;
-    let returnArr = [];
+    let dataArray = [];
     let colArr = [];
     const addCurrentLineToResponse = (type) => {
       // if (trim) {
@@ -507,7 +512,7 @@
         colArr.push(currentProcessingLine.trim());
       } else {
         colArr.push(currentProcessingLine.trim());
-        returnArr.push(colArr);
+        dataArray.push(colArr);
         colArr = [];
       }
       currentProcessingLine = "";
@@ -547,12 +552,9 @@
         currentProcessingLine += currentChar;
       }
     }
-    let header = returnArr.splice(0, 1)[0];
-    let jsonData = [];
+    let header = dataArray.splice(0, 1)[0];
+    let jsonData = utils.ARRAY2JSON(dataArray, headerMapping ? headerMapping : header);
 
-    for(var i = 0; i < returnArr.length; i++) {
-      jsonData.push(utils.ARRAY2JSON(returnArr[i], headerMapping ? headerMapping : header));
-    }
     return jsonData;
   }
   utils.realEscapeString = function(str) {
