@@ -526,8 +526,8 @@
 
     for (let i = 0; i < csvData.length; i++) {
       let currentChar = csvData[i];
-      let isNextCharEnclosedField = (csvData[i + 1] == enclosedChar);
-      let isNextCharEscapeField = csvData[i + 1] == escapeChar;
+      let isNextCharEnclosedField = (csvData[i + 1] === enclosedChar);
+      let isNextCharEscapeField = csvData[i + 1] === escapeChar;
       
       if(currentChar === escapeChar && isCurrentProcessingLineEnclosed && (isNextCharEnclosedField || isNextCharEscapeField)) {
         // console.log('Case.1', csvData[i]);
@@ -599,20 +599,20 @@
 
     for (let i = 0; i < line.length; i++) {
       let currentChar = line[i];
-      let isNextCharEnclosedField = (line[i + 1] == enclosedStartChar || line[i + 1] == enclosedEndChar);
-      let isNextCharEscapeField = line[i + 1] == escapeChar;
+      let isNextCharEnclosedField = (line[i + 1] === enclosedStartChar || line[i + 1] === enclosedEndChar);
+      let isNextCharEscapeField = line[i + 1] === escapeChar;
       
-      if(currentChar == escapeChar && isCurrentProcessingLineEnclosed && (isNextCharEnclosedField || isNextCharEscapeField)) {
+      if(currentChar === escapeChar && isCurrentProcessingLineEnclosed && (isNextCharEnclosedField || isNextCharEscapeField)) {
         currentProcessingLine += removeEscapeChar ? '' : line[i];
         currentProcessingLine += line[i + 1];
         i++;
-      } else if(currentChar == enclosedStartChar && !isCurrentProcessingLineEnclosed) {
+      } else if(currentChar === enclosedStartChar && !isCurrentProcessingLineEnclosed) {
         isCurrentProcessingLineEnclosed = true;
         currentProcessingLine += removeEnclosedChar ? '' : currentChar;
-      } else if(currentChar == enclosedEndChar && isCurrentProcessingLineEnclosed) {
+      } else if(currentChar === enclosedEndChar && isCurrentProcessingLineEnclosed) {
         isCurrentProcessingLineEnclosed = !isCurrentProcessingLineEnclosed;
         currentProcessingLine += removeEnclosedChar ? '' : currentChar;
-      } else if(isCurrentProcessingLineEnclosed && currentChar != enclosedEndChar) {
+      } else if(isCurrentProcessingLineEnclosed && currentChar !== enclosedEndChar) {
         currentProcessingLine += line[i];
       } else if(checkIfSplitChar(i)) {
         addCurrentLineToResponse();
