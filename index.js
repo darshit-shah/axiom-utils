@@ -552,6 +552,8 @@
         currentProcessingLine += currentChar;
       }
     }
+    if(currentProcessingLine)
+      addCurrentLineToResponse('row');
     let header = dataArray.splice(0, 1)[0];
     let jsonData = utils.ARRAY2JSON(dataArray, headerMapping ? headerMapping : header);
 
