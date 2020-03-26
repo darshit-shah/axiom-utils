@@ -389,13 +389,18 @@
     }
     return arrData;
   }
-  // Av : Array of Json to JSON
-  utils.ARRAY2JSON = function(objArray, key) {
-    const objJSON = {};
-    for (let index = 0; index < objArray.length; index++) {
-      objJSON[objArray[index][key]] = objArray[index];
+  // Array of array to JSON
+  utils.ARRAY2JSON = function(dataArray, headerArray) {
+    let arrayJSON = [];
+    for(let rowIndex = 0; rowIndex < dataArray.length; rowIndex++) {
+      const objJSON = {};
+      let currDataArray = dataArray[rowIndex];
+      for (let colIndex = 0; colIndex < currDataArray.length; colIndex++) {
+        objJSON[headerArray[colIndex]] = currDataArray[colIndex];
+      }
+      arrayJSON.push(objJSON);
     }
-    return objJSON;
+    return arrayJSON;
   }
 
   utils.JSON2EXCEL = function(jsonData, sheetName, header, dateFormat, filePath,skipHeader) {
@@ -492,54 +497,67 @@
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
-  utils.CSV2JSON = function(csvData, headerMapping, lineSeperator, columnSeperator, ignoreNotMatchingLines, enclosedChar, escapeChar) {
-    const retJSONdata = [];
-    let headerData = null;
-    let all_rows = null;
-    let flag = false;
-    let retValue = null;
-    columnSeperator = columnSeperator || ",";
-    // var lineSeperator = lineSeperator || "\n";
-    // all_rows = csvData.split(lineSeperator);
-    if(lineSeperator != null){
-      all_rows = utils.splitByChar(csvData, lineSeperator, enclosedChar, enclosedChar, true, true, escapeChar);
-    }
-    else {
-      all_rows = utils.splitByChar(csvData, "\r\n", enclosedChar, enclosedChar, true, true, escapeChar);
-      if(all_rows.length == 1)
-        all_rows = utils.splitByChar(csvData, "\n", enclosedChar, enclosedChar, true, true, escapeChar);
-    }
-    headerData = utils.splitByChar(all_rows[0], columnSeperator, enclosedChar, enclosedChar, true, true, escapeChar);
-    all_rows.splice(0, 1);
-    flag = all_rows.every(function(d, rowIndex) {
-      if (d.length == 0) {
-        return true;
+  utils.CSV2JSON = function(csvData, headerMapping, lineSeperator = '\n', columnSeperator = ",", ignoreNotMatchingLines, enclosedChar = '"', escapeChar = '"') {
+
+    let currentProcessingLine = "";
+    let isCurrentProcessingLineEnclosed = false; // = enclosedChar == csvData[0] ? true : false;
+    // let jsonData;
+    let dataArray = [];
+    let colArr = [];
+    const addCurrentLineToResponse = (type) => {
+      // if (trim) {
+      //   currentProcessingLine.trim();
+      // }
+      if(type.toLowerCase() === 'column') {
+        colArr.push(currentProcessingLine.trim());
       } else {
-        const trmpJSON = {};
-        const tempRow = utils.splitByChar(d, columnSeperator, enclosedChar, enclosedChar, true, true, escapeChar);
-        headerData.forEach(function(d1, i) {
-          if (headerMapping != undefined && Array.isArray(headerMapping) === true) {
-            if (tempRow[i] != undefined) {
-              trmpJSON[headerMapping[i]] = utils.realEscapeString(tempRow[i]);
-            } else {
-              trmpJSON[headerMapping[i]] = '';
-            }
-          } else if (headerMapping != undefined && headerMapping[d1] != undefined) {
-            trmpJSON[headerMapping[d1]] = tempRow[i];
-          } else {
-            trmpJSON[d1] = tempRow[i];
-          }
-        });
-        retJSONdata.push(trmpJSON);
-        return true;
+        colArr.push(currentProcessingLine.trim());
+        dataArray.push(colArr);
+        colArr = [];
       }
-    });
-    if (!flag) {
-      throw Error("invalid csv");
-    } else {
-      retValue = retJSONdata;
+      currentProcessingLine = "";
     };
-    return retValue;
+    const checkIfColumnSplitChar = (index) => {
+      return columnSeperator.split('').every((c, i) => csvData[index+i] === c);
+    }
+    const checkIfRowSplitChar = (index) => {
+      return lineSeperator.split('').every((c, i) => csvData[index+i] === c);
+    }
+
+    for (let i = 0; i < csvData.length; i++) {
+      let currentChar = csvData[i];
+      let isNextCharEnclosedField = (csvData[i + 1] === enclosedChar);
+      let isNextCharEscapeField = csvData[i + 1] === escapeChar;
+      
+      if(currentChar === escapeChar && isCurrentProcessingLineEnclosed && (isNextCharEnclosedField || isNextCharEscapeField)) {
+        // console.log('Case.1', csvData[i]);
+        currentProcessingLine += csvData[i + 1];
+        i++;
+      } else if(currentChar === enclosedChar) {
+        // console.log('Case.2', csvData[i], currentChar === enclosedChar);
+        isCurrentProcessingLineEnclosed = !isCurrentProcessingLineEnclosed
+      } else if(isCurrentProcessingLineEnclosed && currentChar !== enclosedChar) {
+        // console.log('Case.3', csvData[i]);
+        currentProcessingLine += csvData[i];
+      } else if(checkIfColumnSplitChar(i)) {
+        // console.log('Case.4', csvData[i]);
+        addCurrentLineToResponse('column');
+        i+=columnSeperator.length -1;
+      } else if(checkIfRowSplitChar(i)) {
+        // console.log('Case.5', csvData[i]);
+        addCurrentLineToResponse('row');
+        i+=lineSeperator.length -1;
+      } else {
+        // console.log('Case.6', csvData[i]);
+        currentProcessingLine += currentChar;
+      }
+    }
+    if(currentProcessingLine)
+      addCurrentLineToResponse('row');
+    let header = dataArray.splice(0, 1)[0];
+    let jsonData = utils.ARRAY2JSON(dataArray, headerMapping ? headerMapping : header);
+
+    return jsonData;
   }
   utils.realEscapeString = function(str) {
     return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function(char) {
@@ -565,53 +583,46 @@
       }
     });
   }
-  utils.splitByChar = function(line, splitChar, enclosedStartChar, enclosedEndChar, removeEnclosedChar, trim, escapeChar = '"') {
+  utils.splitByChar = function(line, splitChar, enclosedStartChar, enclosedEndChar, removeEnclosedChar, trim, escapeChar = '"', removeEscapeChar) {
+    let counter = 0;
     let response = [];
     let currentProcessingLine = "";
-    let isFirstCharEnclosedChar = enclosedStartChar == line[0] ? true : false;
-    let fieldIsEnclosed = isFirstCharEnclosedChar;
+    let isCurrentProcessingLineEnclosed = false; // = enclosedStartChar == line[0] ? true : false;
     const addCurrentLineToResponse = () => {
       if (trim) {
         currentProcessingLine.trim();
       }
-      let localValues = [];
-      if(removeEnclosedChar === false && fieldIsEnclosed){
-        localValues.push(enclosedStartChar);    
-      }
-      localValues.push(currentProcessingLine);
-      if(removeEnclosedChar === false && fieldIsEnclosed){
-        localValues.push(enclosedEndChar);    
-      }
-      response.push(localValues.join(""));
+      response.push(currentProcessingLine);
       currentProcessingLine = "";
     };
     const checkIfSplitChar = (index) => {
       return splitChar.split('').every((c, i) => line[index+i] === c);
     }
 
-    for (let i = isFirstCharEnclosedChar ? 1 : 0; i < line.length; i++) {
-        let currentChar = line[i];
-        if (
-            isFirstCharEnclosedChar &&
-            currentChar == escapeChar &&
-            line[i + 1] == enclosedEndChar
-        ) {
-            currentProcessingLine += line[i+1];
-            i++;
-        } else if (isFirstCharEnclosedChar && currentChar == enclosedEndChar) {
-            isFirstCharEnclosedChar = false;
-        } else if (!isFirstCharEnclosedChar && checkIfSplitChar(i)) {
-            addCurrentLineToResponse();
-            i+=splitChar.length -1;
-            isFirstCharEnclosedChar = enclosedStartChar ==  line[i+1] ? true : false;
-            fieldIsEnclosed = isFirstCharEnclosedChar;
-            if (isFirstCharEnclosedChar) i++
-        } else {
-            currentProcessingLine += currentChar;
-        }
+    for (let i = 0; i < line.length; i++) {
+      let currentChar = line[i];
+      let isNextCharEnclosedField = (line[i + 1] === enclosedStartChar || line[i + 1] === enclosedEndChar);
+      let isNextCharEscapeField = line[i + 1] === escapeChar;
+      
+      if(currentChar === escapeChar && isCurrentProcessingLineEnclosed && (isNextCharEnclosedField || isNextCharEscapeField)) {
+        currentProcessingLine += removeEscapeChar ? '' : line[i];
+        currentProcessingLine += line[i + 1];
+        i++;
+      } else if(currentChar === enclosedStartChar && !isCurrentProcessingLineEnclosed) {
+        isCurrentProcessingLineEnclosed = true;
+        currentProcessingLine += removeEnclosedChar ? '' : currentChar;
+      } else if(currentChar === enclosedEndChar && isCurrentProcessingLineEnclosed) {
+        isCurrentProcessingLineEnclosed = !isCurrentProcessingLineEnclosed;
+        currentProcessingLine += removeEnclosedChar ? '' : currentChar;
+      } else if(isCurrentProcessingLineEnclosed && currentChar !== enclosedEndChar) {
+        currentProcessingLine += line[i];
+      } else if(checkIfSplitChar(i)) {
+        addCurrentLineToResponse();
+        i+=splitChar.length -1;
+      } else {
+        currentProcessingLine += currentChar;
+      }
     }
-
-    addCurrentLineToResponse();
 
     return response;
   }
