@@ -438,18 +438,26 @@
     }
   }
 
-  utils.EXCEL2JSON = function(excelFilePath, sheetName) {
+  utils.EXCEL2JSON = function(excelFilePath, sheetName, extraReadFileParams, extraSheetToJsonParams) {
     if (!excelFilePath || !sheetName) {
       throw Error('wrong number of arguements passed');
     }
     const excelfilename = excelFilePath.split('.')
-    const excelFormat = excelfilename[excelfilename.length - 1];
+    const excelFormat = excelfilename[excelfilename.length - 1].toLowerCase();
     if (excelFormat == 'xlsx' || excelFormat == 'xls' || excelFormat == 'xlsb') {
-      const workbook = XL.readFile(excelFilePath);
+      const workbook = XL.readFile(excelFilePath, extraReadFileParams || null);
       if (!workbook.SheetNames.includes(sheetName)) {
         throw Error('Sheet ' + sheetName + ' not present at given path');
       }
-      const arrays = XL.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 })
+      let sheetToJsonParams = {
+        header: 1
+      };
+      if(extraSheetToJsonParams && (typeof extraSheetToJsonParams == 'object')) {
+        Object.keys(extraSheetToJsonParams).forEach(param => {
+          sheetToJsonParams[param] = extraSheetToJsonParams[param]
+        });
+      }
+      const arrays = XL.utils.sheet_to_json(workbook.Sheets[sheetName], sheetToJsonParams)
       let keys = arrays[0];
       let values = arrays.slice(1);
       let objects = values.map(array => {
