@@ -598,7 +598,7 @@
     let isCurrentProcessingLineEnclosed = false; // = enclosedStartChar == line[0] ? true : false;
     const addCurrentLineToResponse = () => {
       if (trim) {
-        currentProcessingLine.trim();
+        currentProcessingLine = currentProcessingLine.trim();
       }
       response.push(currentProcessingLine);
       currentProcessingLine = "";
@@ -631,7 +631,9 @@
         currentProcessingLine += currentChar;
       }
     }
-
+    if(currentProcessingLine!=""){
+      addCurrentLineToResponse();
+    }
     return response;
   }
   utils.gerenateSubsetBasedOnKeys = function(settings, keyArray) {
