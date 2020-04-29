@@ -505,8 +505,19 @@
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
-  utils.CSV2JSON = function(csvData, headerMapping, lineSeperator = '\n', columnSeperator = ",", ignoreNotMatchingLines, enclosedChar = '"', escapeChar = '"') {
-
+  utils.CSV2JSON = function(csvData, headerMapping, lineSeperator, columnSeperator, ignoreNotMatchingLines, enclosedChar, escapeChar) {
+    if(!lineSeperator){
+      lineSeperator = "\n";
+    }
+    if(!columnSeperator){
+      columnSeperator = ",";
+    }
+    if(!enclosedChar){
+      enclosedChar='"';
+    }
+    if(!escapeChar){
+      escapeChar='"';
+    }
     let currentProcessingLine = "";
     let isCurrentProcessingLineEnclosed = false; // = enclosedChar == csvData[0] ? true : false;
     // let jsonData;
