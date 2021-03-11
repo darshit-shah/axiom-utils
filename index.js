@@ -136,7 +136,7 @@
           }
           else{
             jsonData[j].output.forEach(function(outputCol) {
-              if (keys.indexOf(outputCol.name) == -1) {
+              if (keys.indexOf(outputCol.name) == -1 && obj.hasOwnProperty(outputCol.alias)==false) {
                 obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
               }
             });
