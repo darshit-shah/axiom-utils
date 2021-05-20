@@ -308,7 +308,10 @@
       cb =  headerSequence;
       headerSequence = []; 
     }
-
+    
+    if(fieldSeparator==null || fieldSeparator==undefined){
+      fieldSeparator=',';
+    }
     const array = typeof objArray != 'object' ? [objArray] : objArray;
     //console.log(typeof objArray);
     let str = '';
