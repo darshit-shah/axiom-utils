@@ -972,6 +972,64 @@
     return xml2json.toXml(json);
   }
   
+  utils.promiseAllLimit = async function(maxConcurrency, elements, fn, printLogs) {
+    return new Promise((resolve, reject) => {
+      let currentIndex = 0;
+      let currentConcurrency = 0;
+      const results = [];
+      const errors = [];
+      function processNextElement() {
+        if (currentIndex < elements.length) {
+          if (currentConcurrency < maxConcurrency) {
+            processSingleElement(currentIndex)
+              .then(() => {
+                processNextElement();
+              })
+              .catch(() => {
+                currentIndex = elements.length;
+                processNextElement();
+              });
+            currentIndex++;
+            processNextElement();
+          } else {
+            if (printLogs === true) {
+              console.log(
+                `Max concurrency reached: ${maxConcurrency}. Current Index: ${currentIndex}. Total Items: ${
+                  elements.length
+                }. ${new Date()} `
+              );
+            }
+          }
+        } else {
+          if (currentConcurrency === 0) {
+            if (errors.length == 0) {
+              resolve(results);
+            } else {
+              reject();
+            }
+          }
+        }
+      }
+      function processSingleElement(myLocalCurrentIndex) {
+        currentConcurrency++;
+        return new Promise((resolve, reject) => {
+          fn(elements[myLocalCurrentIndex], myLocalCurrentIndex, elements)
+            .then((data) => {
+              currentConcurrency--;
+              results[myLocalCurrentIndex] = data;
+              resolve(data);
+            })
+            .catch((error) => {
+              currentConcurrency--;
+              errors[myLocalCurrentIndex] = error;
+              reject(error);
+            });
+        });
+      }
+      processNextElement();
+    });
+  }
+  
   /* Util Library End */
   if (typeof define === "function" && define.amd) this.utils = utils, define(utils);
   else if (typeof module === "object" && module.exports) module.exports = utils;
