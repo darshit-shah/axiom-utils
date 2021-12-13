@@ -53,6 +53,11 @@
     rule.defaultResult = defaultValue;
   }
   
+  utils.convertToNumericIfPossible = function(str) {
+    const returnValue = typeof str != "string" || str == "" || isNaN(str) ? str : +str;
+    return returnValue;
+  }
+  
   utils.mergeArraysByProperty = function(keys, jsonData) {
     const finalArray = [];
     const rulesArray = [];
