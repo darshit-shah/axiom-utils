@@ -6,7 +6,7 @@
     EasyZip = require('easy-zip2').EasyZip;
     d3 = require('d3');
     ruleEngine = require("axiom-rule-engine");
-    xml2json = require("xml2json");
+    xml2json = require("xml2json-ltx");
   }
   "use strict";
   const utils = {
