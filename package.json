@@ -1,6 +1,6 @@
 {
   "name": "axiom-utils",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "description": "common utilities used in axiom platform",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "d3": "4.0.0",
     "easy-zip2": "3.1.0",
     "xlsx": "0.17.0",
-    "xml2json": "0.11.2"
+    "xml2json-ltx": "0.11.4"
   },
   "devDependencies": {
     "mocha": "7.1.1",
