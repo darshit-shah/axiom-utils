@@ -1,6 +1,6 @@
 {
   "name": "axiom-utils",
-  "version": "1.2.16",
+  "version": "1.2.17",
   "description": "common utilities used in axiom platform",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "axiom-rule-engine": "1.0.3",
-    "d3": "7.6.1",
+    "d3": "4.0.0",
     "easy-zip2": "3.1.0",
     "xlsx": "0.17.0",
     "xml2json-ltx": "0.11.4"
