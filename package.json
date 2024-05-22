@@ -1,6 +1,6 @@
 {
   "name": "axiom-utils",
-  "version": "1.2.15",
+  "version": "1.2.16",
   "description": "common utilities used in axiom platform",
   "main": "index.js",
   "scripts": {
