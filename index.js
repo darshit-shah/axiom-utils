@@ -96,8 +96,11 @@
             const result = rulesArray[j].getResult(objectToSearch);
             jsonData[j].output.forEach(function(outputCol) {
               if (keys.indexOf(outputCol.name) == -1) {
-                obj[outputCol.alias] = result[outputCol.name] || outputCol.defaultValue;
-              }
+                obj[outputCol.alias] =
+                  result[outputCol.name] == null
+                    ? outputCol.defaultValue
+                    : result[outputCol.name];
+              }              
             });
           }
           finalArray.push(obj);
